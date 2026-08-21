@@ -1,0 +1,21 @@
+{
+  "name": "@vibe-coding-preset/biome-config",
+  "version": "0.1.0",
+  "description": "Strict, explainable Biome presets for AI-assisted coding",
+  "type": "module",
+  "exports": {
+    ".": "./strict.jsonc",
+    "./base": "./base.jsonc",
+    "./strict": "./strict.jsonc",
+    "./type-aware": "./type-aware.jsonc",
+    "./react": "./react.jsonc"
+  },
+  "files": [
+    "*.jsonc",
+    "README.md"
+  ],
+  "license": "MIT",
+  "peerDependencies": {
+    "@biomejs/biome": "^2.5.0"
+  }
+}

@@ -1,0 +1,7 @@
+{
+  "$schema": "https://biomejs.dev/schemas/2.5.9/schema.json",
+  "extends": ["@vibe-coding-preset/biome-config/base"],
+  "files": {
+    "includes": ["**", "!tests/fixtures/invalid*", "!tests/fixtures/react-invalid*"]
+  }
+}
