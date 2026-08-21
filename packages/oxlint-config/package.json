@@ -1,0 +1,21 @@
+{
+  "name": "@vibe-coding-preset/oxlint-config",
+  "version": "0.1.0",
+  "description": "Strict, explainable Oxlint presets for AI-assisted coding",
+  "type": "module",
+  "exports": {
+    ".": "./index.js"
+  },
+  "files": [
+    "index.js",
+    "README.md"
+  ],
+  "license": "MIT",
+  "sideEffects": false,
+  "engines": {
+    "node": "^22.13.0 || >=24"
+  },
+  "peerDependencies": {
+    "oxlint": "^1.79.0"
+  }
+}
