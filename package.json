@@ -1,0 +1,27 @@
+{
+  "name": "vibe-coding-preset",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@11.22.0",
+  "engines": {
+    "node": "^22.13.0 || >=24"
+  },
+  "scripts": {
+    "check": "pnpm format:check && pnpm lint:eslint && pnpm lint:biome && pnpm typecheck && pnpm test",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "lint:eslint": "eslint . --max-warnings 0",
+    "lint:biome": "biome lint . --error-on-warnings",
+    "test": "node --test tests/*.test.mjs",
+    "typecheck": "tsc --noEmit"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.9",
+    "@eslint/js": "10.0.1",
+    "@vibe-coding-preset/biome-config": "workspace:*",
+    "@vibe-coding-preset/eslint-config": "workspace:*",
+    "eslint": "10.9.0",
+    "typescript": "5.9.3"
+  }
+}
