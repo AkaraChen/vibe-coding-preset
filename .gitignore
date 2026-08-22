@@ -3,3 +3,9 @@ dist/
 coverage/
 .eslintcache
 *.log
+.next/
+.turbo/
+playwright-report/
+test-results/
+implementations/workboard/guarded/data/
+implementations/workboard/guarded/.env

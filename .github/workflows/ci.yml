@@ -22,3 +22,43 @@ jobs:
           cache: pnpm
       - run: pnpm install --frozen-lockfile
       - run: pnpm run check
+
+  workboard-guarded:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: workboard
+          POSTGRES_PASSWORD: workboard
+          POSTGRES_DB: workboard
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U workboard -d workboard"
+          --health-interval 2s
+          --health-timeout 5s
+          --health-retries 20
+    env:
+      DATABASE_URL: postgres://workboard:workboard@localhost:5432/workboard
+      COOKIE_SECURE: "false"
+      STORAGE_DIR: ${{ github.workspace }}/implementations/workboard/guarded/data/attachments
+      API_ORIGIN: http://127.0.0.1:3001
+      WEB_ORIGIN: http://127.0.0.1:3000
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter workboard-guarded format:check
+      - run: pnpm --filter workboard-guarded lint:eslint
+      - run: pnpm --filter workboard-guarded lint:biome
+      - run: pnpm --filter workboard-guarded typecheck
+      - run: pnpm --filter workboard-guarded test
+      - run: pnpm --filter @workboard/api build
+      - run: pnpm --filter @workboard/web build

@@ -1,0 +1,38 @@
+{
+  "name": "workboard-guarded",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "pnpm --filter @workboard/shared build && pnpm --filter @workboard/db build && pnpm --filter @workboard/storage build && pnpm --filter @workboard/api build && pnpm --filter @workboard/web build",
+    "check": "pnpm format:check && pnpm lint:eslint && pnpm lint:biome && pnpm typecheck && pnpm test",
+    "db:migrate": "pnpm --filter @workboard/db migrate",
+    "db:seed": "pnpm --filter @workboard/db seed",
+    "dev": "pnpm --filter @workboard/api dev & pnpm --filter @workboard/web dev",
+    "format": "biome format --write .",
+    "format:check": "biome format .",
+    "lint": "pnpm lint:eslint && pnpm lint:biome",
+    "lint:biome": "biome lint . --error-on-warnings",
+    "lint:eslint": "eslint . --max-warnings 0",
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "typecheck": "tsc --noEmit -p tsconfig.json && tsc --noEmit -p apps/web/tsconfig.json"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.9",
+    "@playwright/test": "1.57.0",
+    "@testing-library/jest-dom": "6.8.0",
+    "@testing-library/react": "16.3.0",
+    "@testing-library/user-event": "14.6.1",
+    "@types/node": "24.5.2",
+    "@types/react": "19.2.2",
+    "@types/react-dom": "19.2.2",
+    "@vibe-coding-preset/biome-config": "workspace:*",
+    "@vibe-coding-preset/eslint-config": "workspace:*",
+    "eslint": "10.9.0",
+    "jsdom": "26.1.0",
+    "typescript": "5.9.3",
+    "typescript-eslint": "8.67.0",
+    "vitest": "3.2.4"
+  }
+}

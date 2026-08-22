@@ -1,0 +1,24 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "jsx": "preserve",
+    "lib": ["ES2022", "DOM", "DOM.Iterable"],
+    "noEmit": true,
+    "types": ["node"]
+  },
+  "include": [
+    "apps/api/**/*.ts",
+    "packages/**/*.ts",
+    "eslint.config.js",
+    "vitest.config.ts",
+    "vitest.setup.ts",
+    "playwright.config.ts"
+  ],
+  "exclude": [
+    "**/node_modules",
+    "**/.next",
+    "**/dist",
+    "**/playwright-report",
+    "**/test-results"
+  ]
+}

@@ -3,5 +3,9 @@ import { defineConfig } from "oxlint";
 
 export default defineConfig({
   extends: [base],
-  ignorePatterns: ["tests/fixtures/invalid*", "tests/fixtures/react-invalid*"],
+  ignorePatterns: [
+    "tests/fixtures/invalid*",
+    "tests/fixtures/react-invalid*",
+    "implementations/**",
+  ],
 });
