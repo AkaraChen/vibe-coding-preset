@@ -14,13 +14,14 @@
 8. ESLint 仍提供最成熟的 typed lint 和插件生态；Biome 提供更快的一体化 formatter/linter，但类型推断覆盖并非 TypeScript 编译器的完整替代。
 9. changed-files lint 是快速反馈，不是完整门禁。`tsconfig`、依赖图或全局声明变化会影响未修改文件，CI 仍需全量检查。
 10. lint 通过只是必要条件。类型检查、行为测试、SAST、secret/SCA 与人工 review 各自负责 linter 无法证明的部分。
+11. Oxlint 适合替代 ESLint 的快速规则层，并可通过 `oxlint-tsgolint` 承载大多数 typescript-eslint typed rules；迁移时仍须按实际支持列表和 option 逐条验证。
 
 ## Failure mode 与控制矩阵
 
 | 失控模式 | ESLint | Biome | 策略 |
 | --- | --- | --- | --- |
 | 未使用/半成品代码 | TS `no-unused-vars`, `no-unused-expressions`, core recommended | `noUnusedVariables`, `noUnusedImports`, `noUnusedExpressions` | error；unused import 删除属于 unsafe fix |
-| Promise 漏接/误用 | `no-floating-promises`, `no-misused-promises`, `await-thenable`, typed `require-await` | `noFloatingPromises`, `noMisusedPromises`（types domain + nursery） | error；不允许用 `void` 机械消音 |
+| Promise 漏接/误用 | `no-floating-promises`, `no-misused-promises`, `await-thenable`, typed `require-await` | `noFloatingPromises`, `noMisusedPromises`（types domain + nursery） | Oxlint 用 `typescript/*` 对应规则；error，不允许用 `void` 机械消音 |
 | `any` 传播 | `no-explicit-any` + `no-unsafe-*` | `noExplicitAny`；没有完整 `no-unsafe-*` 对齐保证 | 输入边界先收为 `unknown` 并验证 |
 | 永真条件/漏分支 | `strict-boolean-expressions`, `no-unnecessary-condition`, `switch-exhaustiveness-check` | `noUnnecessaryConditions` 等 types 规则 | typed 层 error；迁移前测误报 |
 | 错误 import/幽灵依赖/cycle | import-x + restricted imports | `noUndeclaredDependencies`, `noUnresolvedImports`, `noImportCycles` | cycle 昂贵，不进 keystroke 快层 |
@@ -36,6 +37,10 @@ typescript-eslint v8 推荐 `parserOptions.projectService: true`，复用与编�
 Biome 2.x 已经不是“纯 syntax linter”：它提供 project scanner、module graph、types domain、跨文件规则和 GritQL plugins。但 Biome 官方说明其 type inference 只是 TypeScript 类型系统的子集；Biome 2.0 发布时对 `noFloatingPromises` 的有限测试约覆盖 typescript-eslint 检出案例的 75%。当前 `noFloatingPromises` 与 `noMisusedPromises` 仍属于 nursery，所以本仓库只在明确 opt-in 的 `type-aware` preset 中启用。
 
 Biome 的 GritQL plugin 可匹配 AST pattern、产生 diagnostics 和 safe/unsafe rewrite，但不等同于任意 JavaScript ESLint plugin API。需要成熟的 `no-unsafe-*`、复杂 resolver 或框架插件时，应保留 ESLint 专项层。
+
+Oxlint 1.x 的配置模型面向 ESLint v8 eslintrc 兼容，原生实现 core、TypeScript、import、React/Hooks 等常用插件规则，并提供 ESLint flat config 迁移器；“兼容”仍不是完全同构。JavaScript plugin API 兼容处于 alpha，规则总量、options 和 typed 覆盖会随版本变化。本仓库因此只启用已由 fixtures 验证的交集，并把 Oxlint 与 ESLint/Biome 保持相同的四层语义。
+
+Oxlint 的类型感知由 `oxlint-tsgolint` 提供。共享配置可携带 typed 规则，但 `options.typeAware` 是根配置选项，不能由包静默开启；这使性能成本在消费项目中保持显式。共享 npm 配置也需要在 `oxlint.config.ts` 中 import 对象，JSON `extends` 不解析包名。
 
 ## 严重度和 fix 策略
 
@@ -78,6 +83,10 @@ agent 普通任务不应修改 `eslint.config.*`、`biome.json*`、`tsconfig*`�
 - [Biome 2.5 release](https://biomejs.dev/blog/biome-v2-5/)
 - [Biome domains](https://biomejs.dev/linter/domains/)
 - [Biome suppressions](https://biomejs.dev/analyzer/suppressions/)
+- [Oxlint configuration](https://oxc.rs/docs/guide/usage/linter/config.html)
+- [Oxlint configuration reference](https://oxc.rs/docs/guide/usage/linter/config-file-reference)
+- [Oxlint type-aware linting](https://oxc.rs/docs/guide/usage/linter/type-aware)
+- [Migrating from ESLint to Oxlint](https://oxc.rs/docs/guide/usage/linter/migrate-from-eslint)
 - [React Rules of Hooks lint](https://react.dev/reference/eslint-plugin-react-hooks/lints/rules-of-hooks)
 - [GitHub Copilot hooks](https://docs.github.com/en/copilot/concepts/agents/hooks)
 - [CodeQL JavaScript and TypeScript queries](https://docs.github.com/en/code-security/reference/code-scanning/codeql/codeql-queries/javascript-typescript-built-in-queries)

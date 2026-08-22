@@ -82,3 +82,41 @@ test("Biome React catches a conditional hook", () => {
   assert.notEqual(result.status, 0, diagnostics);
   assert.match(diagnostics, /useHookAtTopLevel/);
 });
+
+test("Oxlint base accepts valid TypeScript", () => {
+  const result = run(
+    "oxlint",
+    "--config",
+    "tests/configs/oxlint-base.config.ts",
+    "tests/fixtures/valid.ts",
+    "--deny-warnings",
+  );
+  assert.equal(result.status, 0, output(result));
+});
+
+test("Oxlint type-aware catches Promise and any escape hatches", () => {
+  const result = run(
+    "oxlint",
+    "--config",
+    "tests/configs/oxlint-type-aware.config.ts",
+    "tests/fixtures/invalid.ts",
+    "--deny-warnings",
+  );
+  const diagnostics = output(result);
+  assert.notEqual(result.status, 0, diagnostics);
+  assert.match(diagnostics, /typescript\(no-floating-promises\)/);
+  assert.match(diagnostics, /typescript\(no-explicit-any\)/);
+});
+
+test("Oxlint React catches conditional hooks", () => {
+  const result = run(
+    "oxlint",
+    "--config",
+    "tests/configs/oxlint-react.config.ts",
+    "tests/fixtures/react-invalid.tsx",
+    "--deny-warnings",
+  );
+  const diagnostics = output(result);
+  assert.notEqual(result.status, 0, diagnostics);
+  assert.match(diagnostics, /react-hooks\(rules-of-hooks\)/);
+});
