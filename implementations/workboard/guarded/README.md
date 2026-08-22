@@ -15,6 +15,8 @@ Warnings fail both linters (`--max-warnings 0`, `--error-on-warnings`).
 
 `packages/db/drizzle/**` is ignored because drizzle-kit emits SQL/meta snapshots. Schema source in `packages/db/src` remains linted.
 
+Guarded Biome config is `biome.guarded.jsonc` (passed with `--config-path`) so it is not a nested Biome root inside the preset repository.
+
 ## Commands
 
 From the repository root:

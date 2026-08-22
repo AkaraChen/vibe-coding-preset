@@ -1,10 +1,2 @@
-export type StorageObject = {
-  body: Uint8Array;
-  mimeType: string;
-};
-
-export type Storage = {
-  delete(key: string): Promise<void>;
-  get(key: string): Promise<StorageObject | undefined>;
-  put(key: string, body: Uint8Array, mimeType: string): Promise<void>;
-};
+export { FsStorage } from "./fs-storage.ts";
+export type { Storage, StorageObject } from "./types.ts";

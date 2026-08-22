@@ -6,7 +6,7 @@
       "**",
       "!tests/fixtures/invalid*",
       "!tests/fixtures/react-invalid*",
-      "!implementations/**"
+      "!implementations"
     ]
   }
 }

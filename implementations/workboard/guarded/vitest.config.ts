@@ -1,6 +1,10 @@
 import { defineConfig } from "vitest/config";
 
 export default defineConfig({
+  esbuild: {
+    jsx: "automatic",
+    jsxImportSource: "react",
+  },
   test: {
     environment: "node",
     environmentMatchGlobs: [["apps/web/**", "jsdom"]],
@@ -11,5 +15,6 @@ export default defineConfig({
       "apps/web/src/**/*.test.tsx",
     ],
     setupFiles: ["./vitest.setup.ts"],
+    fileParallelism: false,
   },
 });

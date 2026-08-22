@@ -12,7 +12,8 @@
     "eslint.config.js",
     "vitest.config.ts",
     "vitest.setup.ts",
-    "playwright.config.ts"
+    "playwright.config.ts",
+    "e2e/**/*.ts"
   ],
   "exclude": [
     "**/node_modules",

@@ -8,7 +8,7 @@
     "moduleResolution": "Bundler",
     "noEmit": true,
     "plugins": [{ "name": "next" }],
-    "types": ["node"]
+    "types": ["node", "vitest/globals"]
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
   "exclude": ["node_modules"]

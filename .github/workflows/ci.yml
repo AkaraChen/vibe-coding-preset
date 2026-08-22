@@ -59,6 +59,12 @@ jobs:
       - run: pnpm --filter workboard-guarded lint:eslint
       - run: pnpm --filter workboard-guarded lint:biome
       - run: pnpm --filter workboard-guarded typecheck
+      - run: pnpm --filter @workboard/db migrate
+      - run: pnpm --filter @workboard/db seed
       - run: pnpm --filter workboard-guarded test
       - run: pnpm --filter @workboard/api build
       - run: pnpm --filter @workboard/web build
+      - run: pnpm --filter workboard-guarded exec playwright install chromium
+      - run: pnpm --filter workboard-guarded test:e2e
+        env:
+          CI: true

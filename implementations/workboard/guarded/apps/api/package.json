@@ -11,8 +11,13 @@
   },
   "dependencies": {
     "@hono/node-server": "1.19.9",
+    "@workboard/db": "workspace:*",
     "@workboard/shared": "workspace:*",
-    "hono": "4.13.3"
+    "@workboard/storage": "workspace:*",
+    "argon2": "0.44.0",
+    "drizzle-orm": "0.45.2",
+    "hono": "4.13.3",
+    "zod": "4.4.3"
   },
   "devDependencies": {
     "tsx": "4.20.6"
