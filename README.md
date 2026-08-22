@@ -51,7 +51,7 @@ export default defineConfig({
 });
 ```
 
-See [`docs/presets.md`](docs/presets.md) for layer selection and agent-loop integration, and [`docs/research.md`](docs/research.md) for the underlying research.
+See [`docs/presets.md`](docs/presets.md) for layer selection and agent-loop integration, and [`docs/research.md`](docs/research.md) for the underlying research. The approved Workboard full-stack linter benchmark plan is in [`docs/workboard-benchmark-plan.md`](docs/workboard-benchmark-plan.md).
 
 ## Development
 
