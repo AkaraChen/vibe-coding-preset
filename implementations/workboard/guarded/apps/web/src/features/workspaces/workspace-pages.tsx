@@ -61,7 +61,12 @@ export const WorkspaceListPage: FC = () => {
   const items = query.data.items;
   return (
     <section className="mx-auto max-w-3xl p-6">
-      <h1 className="text-2xl font-semibold">Workspaces</h1>
+      <h1
+        className="text-2xl font-semibold"
+        data-testid="workspace-list-heading"
+      >
+        Workspaces
+      </h1>
       {items.length === 0 ? (
         <EmptyState message="Create a workspace to get started." />
       ) : null}
@@ -75,8 +80,17 @@ export const WorkspaceListPage: FC = () => {
           </li>
         ))}
       </ul>
-      <form onSubmit={onCreate} className="mt-8 space-y-3">
-        <h2 className="font-medium">New workspace</h2>
+      <form
+        onSubmit={onCreate}
+        className="mt-8 space-y-3"
+        data-testid="create-workspace-form"
+      >
+        <p className="font-medium">Create a workspace</p>
+        {create.isError ? (
+          <p data-testid="error-state" role="alert" className="text-red-700">
+            Could not create the workspace.
+          </p>
+        ) : null}
         <label className="block">
           Name
           <input
@@ -96,6 +110,7 @@ export const WorkspaceListPage: FC = () => {
         <button
           type="submit"
           className="rounded bg-neutral-900 px-3 py-2 text-white"
+          disabled={create.isPending}
         >
           Create
         </button>
@@ -122,7 +137,9 @@ export const WorkspaceOverview: FC<{ slug: string }> = ({ slug }) => {
   const items = projects.data?.items ?? [];
   return (
     <section className="mx-auto max-w-3xl p-6">
-      <h1 className="text-2xl font-semibold">{workspace.name}</h1>
+      <h1 className="text-2xl font-semibold" data-testid="workspace-heading">
+        {workspace.name}
+      </h1>
       <nav className="mt-2 flex gap-4 text-sm">
         <a className="underline" href={`/w/${slug}/settings/members`}>
           Members

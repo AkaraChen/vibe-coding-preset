@@ -38,3 +38,10 @@ Warnings are treated as failures. No `eslint-disable` / `biome-ignore` in produc
 | API `tsc --noEmit` | pass |
 
 **Suppressions:** none in product source. SQL migrations live in `packages/db/migrations/`. Biome is invoked via `--config-path biome.guarded.jsonc` so the preset repo does not see a nested Biome root.
+
+## Slice 10 — Guided Review blockers
+
+- **Commands:** `lint:eslint`, `lint:biome`, `typecheck`, `test` (29 passed)
+- **Failure categories:** unused/`any` on SSE stream bytes; FormData/`json()` snapshot typing in Playwright
+- **Fix rounds:** 2
+- **Irreducible conflicts:** none

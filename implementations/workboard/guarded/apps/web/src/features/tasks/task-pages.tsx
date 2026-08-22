@@ -2,7 +2,7 @@
 
 import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter, useSearchParams } from "next/navigation";
-import type { FC, FormEvent } from "react";
+import { useState, type FC, type FormEvent } from "react";
 import { ApiError } from "../../shared/api/client";
 import { formValue } from "../../shared/ui/form-value";
 import { LoadingState } from "../../shared/ui/states";
@@ -195,6 +195,7 @@ export const TaskDetailPage: FC<{
       await comments.refetch();
     },
   });
+  const [uploadError, setUploadError] = useState<string | undefined>(undefined);
   const viewer = ctx.role === "viewer";
   if (detail.isPending) {
     return <LoadingState />;
@@ -257,13 +258,23 @@ export const TaskDetailPage: FC<{
           const form = new FormData(event.currentTarget);
           const file = form.get("file");
           if (file instanceof File && file.size > 0) {
+            setUploadError(undefined);
             uploadAttachment(taskId, file).then(
-              () => undefined,
-              () => undefined,
+              () => {
+                setUploadError(undefined);
+              },
+              () => {
+                setUploadError("Could not upload the file.");
+              },
             );
           }
         }}
       >
+        {uploadError ? (
+          <p data-testid="error-state" role="alert" className="text-red-700">
+            {uploadError}
+          </p>
+        ) : null}
         <label className="block">
           Attachment
           <input

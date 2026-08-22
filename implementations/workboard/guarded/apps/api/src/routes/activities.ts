@@ -1,7 +1,7 @@
-import { and, desc, eq, lt, or, sql } from "drizzle-orm";
+import { and, desc, eq, gt, lt, or, sql } from "drizzle-orm";
 import type { Hono } from "hono";
 import { streamSSE, type SSEStreamingApi } from "hono/streaming";
-import { activities } from "@workboard/db";
+import { activities, type Database } from "@workboard/db";
 import {
   decodeCursor,
   encodeCursor,
@@ -9,13 +9,83 @@ import {
   ERROR_CODES,
 } from "@workboard/shared";
 import { loadWorkspace, requirePermission } from "../access.ts";
+import type { ActivityEvent } from "../hub.ts";
 import { requireActor } from "../http.ts";
 import type { AppDeps, AppVariables } from "../types.ts";
+
+type ActivityRow = typeof activities.$inferSelect;
+
+function asPayload(value: unknown): Record<string, unknown> {
+  if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+  return {};
+}
+
+function toActivityEvent(row: ActivityRow): ActivityEvent {
+  return {
+    actorId: row.actorId,
+    createdAt: row.createdAt.toISOString(),
+    entityId: row.entityId,
+    entityType: row.entityType,
+    id: row.id,
+    payload: asPayload(row.payload),
+    type: row.type,
+    workspaceId: row.workspaceId,
+  };
+}
 
 async function ping(stream: SSEStreamingApi): Promise<void> {
   await stream.sleep(15000);
   await stream.writeSSE({ data: "{}", event: "ping" });
   await ping(stream);
+}
+
+async function loadMissedActivities(
+  db: Database,
+  workspaceId: string,
+  lastEventId: string,
+): Promise<ActivityRow[]> {
+  const originRows = await db
+    .select()
+    .from(activities)
+    .where(
+      and(
+        eq(activities.workspaceId, workspaceId),
+        eq(activities.id, lastEventId),
+      ),
+    )
+    .limit(1);
+  const origin = originRows[0];
+  if (origin === undefined) {
+    return [];
+  }
+  const after = or(
+    gt(activities.createdAt, origin.createdAt),
+    and(
+      eq(activities.createdAt, origin.createdAt),
+      gt(activities.id, origin.id),
+    ),
+  );
+  return db
+    .select()
+    .from(activities)
+    .where(and(eq(activities.workspaceId, workspaceId), after))
+    .orderBy(activities.createdAt, activities.id);
+}
+
+async function writeMissed(
+  stream: SSEStreamingApi,
+  rows: ActivityRow[],
+): Promise<void> {
+  for (const row of rows) {
+    const event = toActivityEvent(row);
+    await stream.writeSSE({
+      data: JSON.stringify(event),
+      event: event.type,
+      id: event.id,
+    });
+  }
 }
 
 export function mountActivities(
@@ -77,20 +147,17 @@ export function mountActivities(
     );
     requirePermission(membership.role, "activity.read");
     const lastEventId = c.req.header("Last-Event-ID");
-    if (lastEventId !== undefined && lastEventId.length > 0) {
-      const missed = await deps.db
-        .select()
-        .from(activities)
-        .where(
-          and(
-            eq(activities.workspaceId, membership.workspaceId),
-            sql`${activities.createdAt} >= (select created_at from activities where id = ${lastEventId})`,
-          ),
-        )
-        .orderBy(activities.createdAt, activities.id);
-      c.header("X-Resume-Count", String(missed.length));
-    }
+    const missed =
+      lastEventId !== undefined && lastEventId.length > 0
+        ? await loadMissedActivities(
+            deps.db,
+            membership.workspaceId,
+            lastEventId,
+          )
+        : [];
+    c.header("X-Resume-Count", String(missed.length));
     return streamSSE(c, async (stream) => {
+      await writeMissed(stream, missed);
       const unsubscribe = deps.hub.subscribe(
         membership.workspaceId,
         (event) => {

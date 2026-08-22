@@ -226,7 +226,15 @@ export function mountTasks(
     }
     const results: Array<{ error?: string; id: string; ok: boolean }> = [];
     for (const id of body.ids) {
-      results.push(await applyBulkStatus(deps, actor.id, id, body.status));
+      results.push(
+        await applyBulkStatus(
+          deps,
+          actor.id,
+          membership.workspaceId,
+          id,
+          body.status,
+        ),
+      );
     }
     return c.json({ results });
   });
@@ -235,11 +243,15 @@ export function mountTasks(
 async function applyBulkStatus(
   deps: AppDeps,
   actorId: string,
+  workspaceId: string,
   id: string,
   status: TaskStatus,
 ): Promise<{ error?: string; id: string; ok: boolean }> {
   try {
     const loaded = await loadTask(deps.db, id, actorId);
+    if (loaded.membership.workspaceId !== workspaceId) {
+      return { error: ERROR_CODES.notFound, id, ok: false };
+    }
     if (!canTransition(asStatus(loaded.task.status), status)) {
       return { error: ERROR_CODES.invalidTransition, id, ok: false };
     }

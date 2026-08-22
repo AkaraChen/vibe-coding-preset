@@ -1,6 +1,13 @@
 import { and, eq } from "drizzle-orm";
 import type { Hono } from "hono";
-import { users, workspaceMembers, workspaces } from "@workboard/db";
+import {
+  attachments,
+  projects,
+  tasks,
+  users,
+  workspaceMembers,
+  workspaces,
+} from "@workboard/db";
 import {
   AppError,
   ERROR_CODES,
@@ -115,6 +122,15 @@ export function mountWorkspaces(
       actor.id,
     );
     requirePermission(membership.role, "workspace.delete");
+    const files = await deps.db
+      .select({ storageKey: attachments.storageKey })
+      .from(attachments)
+      .innerJoin(tasks, eq(attachments.taskId, tasks.id))
+      .innerJoin(projects, eq(tasks.projectId, projects.id))
+      .where(eq(projects.workspaceId, workspace.id));
+    for (const file of files) {
+      await deps.storage.delete(file.storageKey);
+    }
     await deps.db.delete(workspaces).where(eq(workspaces.id, workspace.id));
     return c.body(null, 204);
   });
